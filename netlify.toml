@@ -1,7 +1,7 @@
+# Next.js 16 on Netlify — the official plugin handles the publish dir + runtime.
+# Do NOT set `publish` manually; the @netlify/plugin-nextjs runtime manages it.
 [build]
   command = "npm run build"
-  publish = ".next"
 
-# Netlify auto-installs this for Next.js, pinned here for clarity.
 [[plugins]]
   package = "@netlify/plugin-nextjs"
