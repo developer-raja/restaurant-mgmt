@@ -5,7 +5,7 @@ import "./globals.css";
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Kitchen Nova",
+  title: "Chicken Nova",
   description: "Run your restaurant — menu, orders, stock, sales.",
 };
 

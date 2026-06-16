@@ -1,4 +1,4 @@
-# 🍗 Kitchen Nova
+# 🍗 Chicken Nova
 
 Phone-first restaurant manager. Menu, orders/billing, stock, sales — no paper, no pen.
 

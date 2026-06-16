@@ -18,16 +18,19 @@ export default function Dashboard() {
   const [revenue, setRevenue] = useState(0);
   const [orders, setOrders] = useState(0);
   const [menuCount, setMenuCount] = useState(0);
+  const [name, setName] = useState("");
   const [lowStock, setLowStock] = useState<{ id: string; name: string; qty: number; unit: string }[]>([]);
 
   useEffect(() => {
     (async () => {
       const since = startOfToday();
-      const [ordRes, menuRes, invRes] = await Promise.all([
+      const [ordRes, menuRes, invRes, userRes] = await Promise.all([
         supabase.from("orders").select("total").gte("created_at", since),
         supabase.from("menu_items").select("id", { count: "exact", head: true }),
         supabase.from("inventory_items").select("id,name,qty,unit,low_threshold"),
+        supabase.auth.getUser(),
       ]);
+      setName((userRes.data.user?.user_metadata?.name as string) || "");
       const ords = ordRes.data ?? [];
       setRevenue(ords.reduce((s, o) => s + Number(o.total), 0));
       setOrders(ords.length);
@@ -46,7 +49,7 @@ export default function Dashboard() {
       <header className="flex items-start justify-between px-5 pt-6">
         <div>
           <p className="text-sm text-muted">Today</p>
-          <h1 className="text-2xl font-bold">Good day, chef</h1>
+          <h1 className="text-2xl font-bold">Good day, {name || "chef"}</h1>
         </div>
         <Link href="/settings" className="grid h-10 w-10 place-items-center rounded-full border border-line bg-card text-muted active:scale-95"><Settings size={20} /></Link>
       </header>

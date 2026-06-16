@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { type ShopProfile } from "@/lib/types";
 
 const BLANK = {
-  shop_name: "My Kitchen", address: "", phone: "", gstin: "",
+  owner_name: "", shop_name: "Chicken Nova", address: "", phone: "", gstin: "",
   gst_enabled: false, gst_rate: "5", receipt_footer: "Thank you! Visit again.",
 };
 
@@ -19,15 +19,17 @@ export default function SettingsPage() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.from("shop_profile").select("*").maybeSingle();
-      if (data) {
-        const p = data as ShopProfile;
-        setForm({
-          shop_name: p.shop_name ?? "My Kitchen", address: p.address ?? "", phone: p.phone ?? "",
-          gstin: p.gstin ?? "", gst_enabled: p.gst_enabled, gst_rate: String(p.gst_rate ?? 5),
-          receipt_footer: p.receipt_footer ?? "",
-        });
-      }
+      const [{ data }, { data: u }] = await Promise.all([
+        supabase.from("shop_profile").select("*").maybeSingle(),
+        supabase.auth.getUser(),
+      ]);
+      const p = data as ShopProfile | null;
+      setForm({
+        owner_name: (u.user?.user_metadata?.name as string) ?? "",
+        shop_name: p?.shop_name ?? "Chicken Nova", address: p?.address ?? "", phone: p?.phone ?? "",
+        gstin: p?.gstin ?? "", gst_enabled: p?.gst_enabled ?? false, gst_rate: String(p?.gst_rate ?? 5),
+        receipt_footer: p?.receipt_footer ?? "Thank you! Visit again.",
+      });
       setLoading(false);
     })();
   }, [supabase]);
@@ -35,9 +37,10 @@ export default function SettingsPage() {
   async function save(e: React.FormEvent) {
     e.preventDefault();
     const { data: u } = await supabase.auth.getUser();
+    await supabase.auth.updateUser({ data: { name: form.owner_name.trim() } });
     await supabase.from("shop_profile").upsert({
       owner_id: u.user?.id,
-      shop_name: form.shop_name.trim() || "My Kitchen",
+      shop_name: form.shop_name.trim() || "Chicken Nova",
       address: form.address.trim() || null,
       phone: form.phone.trim() || null,
       gstin: form.gstin.trim() || null,
@@ -64,9 +67,14 @@ export default function SettingsPage() {
       ) : (
         <form onSubmit={save} className="px-5 py-4 space-y-4">
           <div className="rounded-2xl border border-line bg-card p-4 space-y-3">
+            <p className="text-sm font-semibold">You</p>
+            <Field label="Your name (shown on dashboard greeting)"><input value={form.owner_name} onChange={(e) => setForm({ ...form, owner_name: e.target.value })} placeholder="Dina" className="inp" /></Field>
+          </div>
+
+          <div className="rounded-2xl border border-line bg-card p-4 space-y-3">
             <p className="text-sm font-semibold">Shop details (shown on receipts)</p>
-            <Field label="Shop name"><input required value={form.shop_name} onChange={(e) => setForm({ ...form, shop_name: e.target.value })} placeholder="Kitchen Nova" className="inp" /></Field>
-            <Field label="Address"><input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} placeholder="12 Main St, Chennai" className="inp" /></Field>
+            <Field label="Shop name"><input required value={form.shop_name} onChange={(e) => setForm({ ...form, shop_name: e.target.value })} placeholder="Chicken Nova" className="inp" /></Field>
+            <Field label="Address (optional)"><input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} placeholder="12 Main St, Chennai" className="inp" /></Field>
             <div className="grid grid-cols-2 gap-3">
               <Field label="Phone"><input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="98xxxxxxx" className="inp" /></Field>
               <Field label="GSTIN (optional)"><input value={form.gstin} onChange={(e) => setForm({ ...form, gstin: e.target.value })} placeholder="33ABC…" className="inp" /></Field>

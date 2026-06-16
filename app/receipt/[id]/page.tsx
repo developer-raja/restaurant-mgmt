@@ -34,7 +34,7 @@ export default function ReceiptPage() {
   const tax = Number(order.tax || 0);
   const subtotal = Number(order.total) - tax;
   const half = Math.round((tax / 2) * 100) / 100;
-  const name = shop?.shop_name || "Kitchen Nova";
+  const name = shop?.shop_name || "Chicken Nova";
   const dt = new Date(order.created_at).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" });
 
   function whatsapp() {

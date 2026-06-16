@@ -43,7 +43,7 @@ export default function LoginPage() {
         <div className="mx-auto mb-3 grid h-16 w-16 place-items-center rounded-2xl bg-brand text-white shadow-lg shadow-orange-200">
           <ChefHat size={34} strokeWidth={2.2} />
         </div>
-        <h1 className="text-2xl font-bold">Kitchen Nova</h1>
+        <h1 className="text-2xl font-bold">Chicken Nova</h1>
         <p className="text-sm text-muted">Run your kitchen from your phone.</p>
       </div>
 
